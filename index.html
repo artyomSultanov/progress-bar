@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Progress bar</title>
+    <style>
+      .user-input {
+        margin: 30px 60px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .user-input__label {
+        color: red;
+      }
+      .progress-bar__wrapper {
+        width: 90%;
+        height: 50px;
+        background-color: #818081;
+        border: 10px solid #818081;
+        text-align: center;
+        line-height: 50px;
+        font-size: 24px;
+        color: #fff;
+        position: relative;
+      }
+      .progress-bar__percent {
+        position: absolute;
+        z-index: 3;
+        left: 50%;
+        top: -24px;
+      }
+      #progress-bar {
+        width: 100%;
+        height: 50px;
+        background-color: #008000;
+        transform: scale3d(0, 1, 1);
+        transform-origin: bottom left;
+        transition: transform 1s ease-in-out;
+      }
+      .progress-bar_loading {
+        border-right: 3px solid #008000;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="user-input">
+      <p class="user-input__label">Set delays list:</p>
+      <form id="steps-form">
+        <input type="text" name="steps" id="steps-input" />
+        <button type="submit" id="steps-button">START</button>
+      </form>
+      <input id="reset-button" type="button" value="RESET" disabled />
+    </div>
+    <div class="progress-bar__wrapper">
+      <p class="progress-bar__percent"></p>
+      <div id="progress-bar"></div>
+    </div>
+
+    <script>
+      const form = document.getElementById('steps-form')
+      const percentText = document.querySelector('.progress-bar__percent')
+      const bar = document.getElementById('progress-bar')
+      const resetBtn = document.getElementById('reset-button')
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault()
+        let value = e.target.elements.steps.value
+        e.target.elements.steps.value = ''
+        value
+          .split(',')
+          .map(Number)
+          .filter((elem, ind, arr) => !arr.slice(0, ind).includes(elem))
+          .forEach((elem, ind, arr) => {
+            setTimeout(() => {
+              const percent = Math.round((100 * (ind + 1)) / arr.length) + '%'
+              percentText.innerHTML = percent
+              bar.style.transform = `scale3d(${percent}, 1, 1)`
+
+              if (ind === arr.length - 1) resetBtn.disabled = false
+            }, 1000 * arr.slice(0, ind + 1).reduce((prev, elem) => elem + prev, 0))
+          })
+        resetBtn.addEventListener('click', () => {
+          bar.style.transform = `scale3d(0, 1, 1)`
+          bar.innerHTML = ''
+          percentText.innerHTML = ''
+        })
+      })
+    </script>
+  </body>
+</html>
